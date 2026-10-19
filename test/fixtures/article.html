@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta property="og:title" content="测试文章：解析器笔记" />
+<meta property="og:image" content="https://mmbiz.qpic.cn/cover.jpg" />
+<meta property="og:release_date" content="2026-09-21T08:30:00+08:00" />
+<script>
+var nickname = htmlDecode("\x26quot;示例公众号\x26quot;");
+var author = "张三";
+var ct = "1758414600";
+var msg_cdn_url = "https://mmbiz.qpic.cn/cover2.jpg";
+</script>
+<title>测试文章：解析器笔记 - 微信公众平台</title>
+</head>
+<body>
+<div id="js_article">
+  <div class="rich_media_content js_underline_content" id="js_content">
+    <h2>小标题一</h2>
+    <script>var trap = "</div><div>这不是真正的结束标签</div>";</script>
+    <p>第一段文字，带 <strong>加粗</strong>、<em>斜体</em>、<del>删除</del> 与 <code>inline()</code>。</p>
+    <p>有序列表：</p>
+    <ul>
+      <li>项目一</li>
+      <li>项目二
+        <ul><li>子项 A</li><li>子项 B</li></ul>
+      </li>
+    </ul>
+    <ol start="3">
+      <li>第三项</li>
+      <li>第四项</li>
+    </ol>
+    <blockquote><p>引用一段话。</p></blockquote>
+    <pre data-lang="js"><code>const a = 1;
+if (a &lt; 2) console.log("ok");</code></pre>
+    <table>
+      <thead><tr><th>列一</th><th>列二</th></tr></thead>
+      <tbody>
+        <tr><td>a|b</td><td>2</td></tr>
+        <tr><td>3</td><td>4</td></tr>
+      </tbody>
+    </table>
+    <figure>
+      <img data-src="//mmbiz.qpic.cn/img1.jpg?wx_fmt=png" alt="图一">
+      <figcaption>图一说明</figcaption>
+    </figure>
+    <p><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="占位图"></p>
+    <iframe class="video_iframe" data-src="https://mp.weixin.qq.com/mp/videoplayer?vid=abc"></iframe>
+    <mpvoice voice_encode_fileid="MzA=">
+    <p>语音后面的段落应该还在。</p>
+  </div>
+</div>
+</body>
+</html>

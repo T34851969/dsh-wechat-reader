@@ -1,11 +1,12 @@
 {
-  "name": "dsh-weixin-reader",
-  "version": "0.1.0",
-  "description": "WeChat Official Account article reader for DeepSeek Harness: parses mp.weixin.qq.com article bodies into clean Markdown for the model",
+  "name": "dsh-wechat-reader",
+  "version": "0.2.0",
+  "description": "WeChat Official Account (mp.weixin.qq.com) article reader for DeepSeek Harness: fetches and parses article bodies into clean Markdown, with caching, retries and workspace-aware saving",
   "type": "module",
   "main": "index.js",
   "exports": {
     ".": "./index.js",
+    "./lib/parser.js": "./lib/parser.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -14,15 +15,19 @@
     "cordis.patch.yml",
     "README.md",
     "README.zh.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
+  "scripts": {
+    "test": "node --test"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": ">=0.0.1-rc.1 <0.1.0 || >=0.1.0-rc.1 <0.2.0-0"
+    "@deepseek-ai/cordis": ">=0.0.1-rc.1"
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/cordis": {
@@ -47,7 +52,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jack1545/dsh-weixin-reader.git"
+    "url": "git+https://github.com/T34851969/dsh-wechat-reader.git"
   },
+  "bugs": {
+    "url": "https://github.com/T34851969/dsh-wechat-reader/issues"
+  },
+  "homepage": "https://github.com/T34851969/dsh-wechat-reader#readme",
+  "author": "T34851969 (fork of dsh-weixin-reader by jack1545)",
   "license": "MIT"
 }

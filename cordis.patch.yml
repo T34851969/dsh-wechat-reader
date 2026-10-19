@@ -1,16 +1,31 @@
-# dsh-weixin-reader bundle patch.
+# dsh-wechat-reader bundle patch.
 #
 # Applied when this package is listed in a profile's dsh.profile.bundles
 # (installed with `dsh plugin --profile <name> add <path>`). The row is keyed by
 # package name, not a source path, so Node module resolution finds the
 # installed code.
 #
-# Config keys documented in README.md. Everything a deployment might tune lives
-# here rather than in the code.
+# Every key below is documented in README.md, and any of them can be overridden
+# by `id` in a profile's own cordis.patch.yml:
+#
+#   - id: dsh-wechat-reader
+#     name: dsh-wechat-reader
+#     config:
+#       maxChars: 20000
+#
+# All keys are spelled out here so a deployment can see and tune the full
+# surface without reading the source.
 - insert:
-    - id: dsh-weixin-reader
-      name: dsh-weixin-reader
+    - id: dsh-wechat-reader
+      name: dsh-wechat-reader
       config:
         timeoutMs: 30000
         maxChars: 60000
         saveToFile: false
+        saveDir: ''
+        cacheTtlMs: 600000
+        maxCacheEntries: 20
+        retries: 2
+        retryDelayMs: 500
+        systemPromptOrder: 10120
+        userAgent: ''
