@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import { resolveSaveTarget, resolveWorkspaceRoot, safeFileName } from '../index.js';
+import { localDateStamp } from '../lib/parser.js';
 import { ARTICLE_URL, fixture, register, stubFetch } from './helpers.mjs';
 
 const ARTICLE_HTML = fixture('article.html');
@@ -240,7 +241,8 @@ test('safeFileName 去掉非法字符并用哈希区分同名文章', () => {
     url: 'https://mp.weixin.qq.com/s/b',
   });
 
-  assert.match(first, /^2026-09-21-A B C-[0-9a-f]{8}\.md$/);
+  // 文件名前缀用本机时区日期（与读者在微信里看到的日期一致）
+  assert.match(first, new RegExp(`^${localDateStamp('2026-09-21T08:30:00.000Z')}-A B C-[0-9a-f]{8}\\.md$`));
   assert.notEqual(first, second);
   assert.match(safeFileName({}), /^weixin-article-[0-9a-f]{8}\.md$/);
 });

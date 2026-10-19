@@ -34,7 +34,8 @@ Harness 内置的 `web_fetch` 抓公众号文章经常失败：站点会返回�
 规范结果包含 `title`、`account`、`author`、`publishedAt`、`sourceUrl`、`cover`、
 `readingMinutes`、`wordCount`、`imageCount`、`images`、`markdown`、`truncated`、
 `omittedChars`、`remainingHeadings`、`savedTo`、`bodyChars`、`cacheHit`。模型实际
-看到的是渲染后的 Markdown：标题、元信息行、正文。
+看到的是渲染后的 Markdown：标题、元信息行、正文。`publishedAt` 是 ISO UTC；元信息行与
+落盘文件名使用读者本机时区，与微信页面渲染 `ct` 的方式一致。
 
 插件还会注册一段系统提示词，告诉模型读公众号文章时优先用它而不是 `web_fetch`。
 
@@ -51,7 +52,7 @@ release tarball：代码相同，走 HTTPS，完全不经过 `git`：
 
 ```sh
 dsh plugin --profile <name> add \
-  https://github.com/T34851969/dsh-wechat-reader/archive/refs/tags/v0.2.0.tar.gz
+  https://github.com/T34851969/dsh-wechat-reader/archive/refs/tags/v0.2.1.tar.gz
 ```
 
 按需替换 tag；tarball 方式版本固定，换新版本要换新 URL，而 `github:` 形式跟随默认分支。
@@ -121,7 +122,7 @@ HTTP 5xx/429/408 才会重试。
 零依赖，解析器可脱离 Harness 单独运行：
 
 ```sh
-node --test        # 34 个测试：解析器、抓取/重试策略、缓存、工具层
+node --test        # 36 个测试：解析器、抓取/重试策略、缓存、工具层
 ```
 
 覆盖范围：实体与转义解码、正文容器截取（包括 `<script>` 里带假闭合标签的情况）、
@@ -147,18 +148,25 @@ console.log(formatArticle(article));
   `@deepseek-ai/dsh-system-prompt` 挂载：插件成功激活，`weixin_read` 注册成功（工具
   注册表同时接受 `parameters` 与扩展后的 `output.schema`，含数组），提示段进入真实
   注册表，`ctx.get(...)` 软查询不会抛错。
-- **实网传输。** 本机可访问 `mp.weixin.qq.com`；对无效链接会在解析器层与工具层都归类为
-  `invalid-link` 并给出可读信息。
-- **单元测试。** Node 22 上 34/34 通过。
-- **本环境未验证：** 对一篇*当前在线*文章的完整解析。这需要真实链接，而本环境没有搜索
-  权限去获取。如果你手上有链接：
+- **实站文章端到端。** 用
+  [`/s/Wg4ZwhEJB4yT4S3XpY8HpQ`](https://mp.weixin.qq.com/s/Wg4ZwhEJB4yT4S3XpY8HpQ)
+  （公众号 `xyang-class`，从 Word 粘贴出来的 6.6 MB 页面）实测：19451 字、4 张
+  `data-src` 懒加载图片、27 个表格，解析出 61728 字符干净 Markdown；工具层返回全部
+  17 个字段，完整正文落盘成功，截断时给出省略字数与后续标题。
+- **默认 User-Agent 是必需的。** 同一个链接改用最简 `Mozilla/5.0` UA 会被重定向到微信
+  的 `wappoc_appmsgcaptcha` 环境校验页，而插件默认的桌面浏览器 UA 能拿到正文。如果遇到
+  `blocked`，优先调整 `userAgent`。
+- **单元测试。** Node 22 上 36/36 通过，在 `TZ=Asia/Hong_Kong`、`UTC`、
+  `America/Los_Angeles`、`Pacific/Kiritimati` 下结果一致。
 
-  ```sh
-  node -e "const {fetchArticle}=await import('./lib/parser.js'); \
-    const a=await fetchArticle(process.argv[1]); \
-    console.log(a.title, a.account, a.wordCount, a.imageCount); \
-    console.log(a.markdown.slice(0, 400))" 'https://mp.weixin.qq.com/s/xxxxxxxx'
-  ```
+自己复现：
+
+```sh
+node -e "const {fetchArticle}=await import('./lib/parser.js'); \
+  const a=await fetchArticle(process.argv[1]); \
+  console.log(a.title, a.account, a.wordCount, a.imageCount); \
+  console.log(a.markdown.slice(0, 400))" 'https://mp.weixin.qq.com/s/xxxxxxxx'
+```
 
 ## 已知限制
 

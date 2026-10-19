@@ -9,7 +9,9 @@ import {
   decodeEntities,
   extractContentHtml,
   formatArticle,
+  formatLocalTime,
   getAttr,
+  localDateStamp,
   normalizeArticleUrl,
   parseArticle,
   truncateMarkdown,
@@ -195,6 +197,9 @@ test('articleMetaLine 与 formatArticle 组合元信息', () => {
   assert.ok(meta.includes('作者：张三'));
   assert.ok(meta.includes('阅读：约 2 分钟'));
   assert.ok(meta.includes('封面：https://x/cover.jpg'));
+  // 发布时间按本机时区渲染，不再直接暴露 ISO UTC 原文（微信客户端也是本地时区显示）。
+  assert.ok(meta.includes('发布时间：' + formatLocalTime(article.publishedAt)));
+  assert.ok(!meta.includes('2026-01-01T00:00:00.000Z'), meta);
 
   const doc = formatArticle(article);
   assert.ok(doc.startsWith('# T'));
@@ -203,4 +208,32 @@ test('articleMetaLine 与 formatArticle 组合元信息', () => {
 
   // 作者与公众号同名时只显示一次
   assert.ok(!articleMetaLine({ account: '号', author: '号' }).includes('作者：'));
+});
+
+test('formatLocalTime 按本机时区渲染并写明偏移量', () => {
+  const iso = '2026-10-14T17:00:00.000Z';
+  const date = new Date(iso);
+  const pad = (value) => String(value).padStart(2, '0');
+  const offset = -date.getTimezoneOffset();
+  const expected = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} `
+    + `${pad(date.getHours())}:${pad(date.getMinutes())} `
+    + `(UTC${offset < 0 ? '-' : '+'}${pad(Math.floor(Math.abs(offset) / 60))}:${pad(Math.abs(offset) % 60)})`;
+
+  assert.equal(formatLocalTime(iso), expected);
+  // 该 ISO 在 +08:00 下正是微信页面里的 create_time（2026-10-15 01:00）。
+  assert.equal(formatLocalTime('').length, 0);
+  assert.equal(formatLocalTime(undefined), '');
+  assert.equal(formatLocalTime('not-a-date'), 'not-a-date');
+});
+
+test('localDateStamp 取本机时区日期，异常输入回退到前 10 个字符', () => {
+  const iso = '2026-10-14T17:00:00.000Z';
+  const date = new Date(iso);
+  const pad = (value) => String(value).padStart(2, '0');
+  assert.equal(localDateStamp(iso), `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`);
+  assert.equal(localDateStamp(''), '');
+  // 只有日期的字符串按 UTC 解析，换算到本机时区可能落到前一天。
+  const bare = new Date('2026-01-02');
+  assert.equal(localDateStamp('2026-01-02'), `${bare.getFullYear()}-${pad(bare.getMonth() + 1)}-${pad(bare.getDate())}`);
+  assert.equal(localDateStamp('garbage-input'), 'garbage-in');
 });

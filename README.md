@@ -39,7 +39,9 @@ The canonical result carries `title`, `account`, `author`, `publishedAt`,
 `sourceUrl`, `cover`, `readingMinutes`, `wordCount`, `imageCount`, `images`,
 `markdown`, `truncated`, `omittedChars`, `remainingHeadings`, `savedTo`,
 `bodyChars`, and `cacheHit`. What the model sees is rendered Markdown: title,
-metadata line, then the body.
+metadata line, then the body. `publishedAt` is ISO UTC; the metadata line and the
+saved file name use the reader's local time zone, exactly as WeChat's own page
+renders its `ct` timestamp.
 
 The plugin also registers a system-prompt section telling the model to prefer
 `weixin_read` over `web_fetch` for WeChat articles.
@@ -58,7 +60,7 @@ code, fetched over HTTPS, no `git` involved:
 
 ```sh
 dsh plugin --profile <name> add \
-  https://github.com/T34851969/dsh-wechat-reader/archive/refs/tags/v0.2.0.tar.gz
+  https://github.com/T34851969/dsh-wechat-reader/archive/refs/tags/v0.2.1.tar.gz
 ```
 
 Pin whichever tag you want; a new release needs a new URL, whereas the
@@ -138,7 +140,7 @@ are retried.
 Zero dependencies; the parser runs standalone:
 
 ```sh
-node --test        # 34 tests: parser, fetch/retry policy, cache, tool layer
+node --test        # 36 tests: parser, fetch/retry policy, cache, tool layer
 ```
 
 Covered: entity/escape decoding, container slicing (including `<script>` bodies
@@ -169,20 +171,28 @@ Verified on 2026-10-20:
   `parameters` and the extended `output.schema`, arrays included), the prompt
   section lands in the real registry, and `ctx.get(...)` soft lookups do not
   throw.
-- **Live transport.** From this machine, `mp.weixin.qq.com` is reachable and an
-  invalid link is classified as `invalid-link` with a readable message at both
-  the parser and the tool layer.
-- **Unit tests.** 34 of 34 pass on Node 22.
-- **Not verified here:** a full parse of a currently-live article. That needs a
-  real link, and this environment had no search access to obtain one. If you have
-  a link:
+- **Live article, end to end.** Against
+  [`/s/Wg4ZwhEJB4yT4S3XpY8HpQ`](https://mp.weixin.qq.com/s/Wg4ZwhEJB4yT4S3XpY8HpQ)
+  (公众号 `xyang-class`, a Word-pasted 6.6 MB page): 19 451 words, 4 lazy
+  `data-src` images and 27 tables parsed into 61 728 characters of clean Markdown;
+  the tool layer returned all 17 result fields, saved the full body to the
+  workspace and reported truncation with the omitted-character count and the
+  remaining headings.
+- **The default User-Agent matters.** The same URL fetched with a minimal
+  `Mozilla/5.0` UA was redirected to WeChat's `wappoc_appmsgcaptcha`
+  environment-check page, while the plugin's default desktop-browser UA returned
+  the article. If you ever get `blocked`, raise or replace `userAgent`.
+- **Unit tests.** 36 of 36 pass on Node 22, unchanged under `TZ=Asia/Hong_Kong`,
+  `UTC`, `America/Los_Angeles` and `Pacific/Kiritimati`.
 
-  ```sh
-  node -e "const {fetchArticle}=await import('./lib/parser.js'); \
-    const a=await fetchArticle(process.argv[1]); \
-    console.log(a.title, a.account, a.wordCount, a.imageCount); \
-    console.log(a.markdown.slice(0, 400))" 'https://mp.weixin.qq.com/s/xxxxxxxx'
-  ```
+Reproduce it yourself:
+
+```sh
+node -e "const {fetchArticle}=await import('./lib/parser.js'); \
+  const a=await fetchArticle(process.argv[1]); \
+  console.log(a.title, a.account, a.wordCount, a.imageCount); \
+  console.log(a.markdown.slice(0, 400))" 'https://mp.weixin.qq.com/s/xxxxxxxx'
+```
 
 ## Limitations
 

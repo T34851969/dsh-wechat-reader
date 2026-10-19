@@ -4,6 +4,31 @@ All notable changes to this fork are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-10-20
+
+Found while testing against a live article
+([`/s/Wg4ZwhEJB4yT4S3XpY8HpQ`](https://mp.weixin.qq.com/s/Wg4ZwhEJB4yT4S3XpY8HpQ)).
+
+### Fixed
+
+- **The publish time is rendered in the reader's own time zone.** WeChat's `ct` is
+  an absolute Unix timestamp and the page ships `create_time: '2026-10-15 01:00'`
+  for it; the client renders it with local-time getters. The metadata line used to
+  print the raw ISO UTC instant, which reads as an eight-hour error to anyone in
+  UTC+08:00. It now prints e.g. `2026-10-15 01:00 (UTC+08:00)`, via the exported
+  `formatLocalTime()`. The machine-readable `publishedAt` field stays ISO UTC.
+- **Saved file names use the local date.** `safeFileName()` took the first ten
+  characters of the ISO string, so an article published at `01:00 +08:00` was saved
+  as the previous day. It now uses the exported `localDateStamp()`.
+
+### Added
+
+- Live end-to-end verification against a real article: 19 451 words, 4 lazy
+  `data-src` images, 27 tables, 61 728 characters of Markdown parsed out of a
+  6.6 MB page, plus tool-layer save and truncation checks (see README).
+- Tests: 36 (was 34), time-zone independent — the suite passes unchanged under
+  `TZ=Asia/Hong_Kong`, `UTC`, `America/Los_Angeles` and `Pacific/Kiritimati`.
+
 ## [0.2.0] — 2026-10-20
 
 Fork of [`jack1545/dsh-weixin-reader`](https://github.com/jack1545/dsh-weixin-reader)
@@ -71,4 +96,5 @@ the features its own README promised but did not implement.
 - `0.1.0` — initial release: zero-dependency parser, `weixin_read` tool, bundle
   patch layer, English and Chinese READMEs (MIT, © 2026 jack1545).
 
+[0.2.1]: https://github.com/T34851969/dsh-wechat-reader/releases/tag/v0.2.1
 [0.2.0]: https://github.com/T34851969/dsh-wechat-reader/releases/tag/v0.2.0

@@ -21,6 +21,7 @@ import {
   articleMetaLine,
   fetchArticle,
   formatArticle,
+  localDateStamp,
   normalizeArticleUrl,
   truncateMarkdown,
 } from './lib/parser.js';
@@ -201,7 +202,7 @@ export function safeFileName(article) {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 80) || 'weixin-article';
-  const stamp = String(article.publishedAt || '').slice(0, 10);
+  const stamp = localDateStamp(article.publishedAt);
   const hash = createHash('sha1').update(String(article.url || title)).digest('hex').slice(0, 8);
   return [stamp, title, hash].filter(Boolean).join('-') + '.md';
 }

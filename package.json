@@ -1,6 +1,6 @@
 {
   "name": "dsh-wechat-reader",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "WeChat Official Account (mp.weixin.qq.com) article reader for DeepSeek Harness: fetches and parses article bodies into clean Markdown, with caching, retries and workspace-aware saving",
   "type": "module",
   "main": "index.js",
