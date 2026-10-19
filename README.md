@@ -53,6 +53,17 @@ dsh plugin --profile <name> add github:T34851969/dsh-wechat-reader
 From a source checkout, use `pnpm dsh` instead of `dsh`. Restart the Harness
 process to load the new layer.
 
+If `git`-over-SSH is unavailable, install the release tarball instead — same
+code, fetched over HTTPS, no `git` involved:
+
+```sh
+dsh plugin --profile <name> add \
+  https://github.com/T34851969/dsh-wechat-reader/archive/refs/tags/v0.2.0.tar.gz
+```
+
+Pin whichever tag you want; a new release needs a new URL, whereas the
+`github:` form follows the default branch.
+
 > **DSH Desktop:** the `desktop` profile is owned by the app and its name is
 > reserved in the CLI. Add the bundle from the app's plugin manager instead, or
 > install into a non-desktop profile with the command above.

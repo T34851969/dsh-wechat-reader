@@ -46,6 +46,16 @@ dsh plugin --profile <name> add github:T34851969/dsh-wechat-reader
 
 从源码检出运行时用 `pnpm dsh` 代替 `dsh`。加载新图层需要重启 Harness 进程。
 
+如果本机 `git`/SSH 不可用（例如 SSH 配置损坏导致 `git+ssh` 拉取失败），可以改装
+release tarball：代码相同，走 HTTPS，完全不经过 `git`：
+
+```sh
+dsh plugin --profile <name> add \
+  https://github.com/T34851969/dsh-wechat-reader/archive/refs/tags/v0.2.0.tar.gz
+```
+
+按需替换 tag；tarball 方式版本固定，换新版本要换新 URL，而 `github:` 形式跟随默认分支。
+
 > **DSH 桌面版：** `desktop` profile 由应用自己管理，其名字在 CLI 中是保留的。
 > 请改用应用内的插件管理页添加该 bundle，或用上面的命令装到非 desktop 的 profile。
 
